@@ -182,3 +182,32 @@
     border-right-color: var(--border);
   }
 }
+
+@media print {
+  /* إخفاء القائمة الجانبية، الأزرار، النماذج، وأزرار التحكم عند الطباعة */
+  header,
+  button,
+  select,
+  input,
+  form,
+  div[style*="grid-template-columns: 1fr 2fr"] > div:first-child,
+  div[style*="display: flex; justifyContent: flex-end"] {
+    display: none !important;
+  }
+
+  /* جعل قسم تفاصيل المشروع والتقارير يملأ الصفحة بالكامل */
+  body, html {
+    background-color: white !important;
+    color: black !important;
+    direction: rtl !important;
+  }
+
+  /* إظهار فقط قسم التقرير والجدول بتنسيق نظيف ورسمي */
+  .report-print-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

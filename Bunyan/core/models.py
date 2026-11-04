@@ -31,7 +31,7 @@ class MaterialRequest(models.Model):
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # التحقق مما إذا كان الطلب قديماً وتم تحديث حالته إلى "تم التسليم"
