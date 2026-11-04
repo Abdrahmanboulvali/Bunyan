@@ -1,0 +1,7 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<LogicalDesign class="oracle.dbtools.crest.model.design.logical.LogicalDesign" name="Logical" id="F40BFFA1-61F9-F2C1-B60E-B11687CC9349" mainViewID="164DC08D-00A3-DCE7-067C-3E62EEAE461F">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 17:53:04 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<shouldBeOpen>false</shouldBeOpen>
+</LogicalDesign>

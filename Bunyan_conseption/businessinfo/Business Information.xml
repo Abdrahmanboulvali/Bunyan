@@ -1,0 +1,7 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<BusinessInfoDesign class="oracle.dbtools.crest.model.businessinfo.BusinessInfoDesign" name="Business Information" id="39A2530D-AC2F-DB5B-51B3-36849D8464A2">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 17:53:04 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<shouldBeOpen>false</shouldBeOpen>
+</BusinessInfoDesign>

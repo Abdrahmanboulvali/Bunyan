@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="Relation_3" directorySegmentName="seg_0" id="7615A508-5F71-46BA-5C4D-1F3CEC79A4C8">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:27:04 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<sourcePk>43A97EC7-B821-ACFD-9C43-679EE1D31F9B</sourcePk>
+<targetPk>43A97EC7-B821-ACFD-9C43-679EE1D31F9B</targetPk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>BB667F31-6692-4B8F-3E6F-4E46D6AE4235</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>1EDFA50A-EFB0-C2E7-ECAD-C48F0CC2869A</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

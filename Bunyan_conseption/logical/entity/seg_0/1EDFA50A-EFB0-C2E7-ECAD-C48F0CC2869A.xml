@@ -1,0 +1,173 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="1EDFA50A-EFB0-C2E7-ECAD-C48F0CC2869A" name="consumption_logs">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:05:06 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="log_id" id="81E86AA3-B6F3-8FB2-5672-85DD6832EC8D">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:20:02 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="project_id" id="9132658A-26FB-D179-A02F-ACFD07FC497D">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:20:36 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="material_id" id="12EC581B-21EB-A222-5AD2-62C17C2422C4">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:21:24 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="user_id" id="126032DA-5FA6-C53B-9595-6E8D612107E7">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:21:43 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="quantity_consumed" id="5DDD9827-111A-B75E-8021-43DE70E64AEA">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:22:08 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="consumption_timestamp" id="4D52C9DE-3A5F-719E-2F6A-2013F8EB721F">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:22:36 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT015</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="image_url" id="9FEB0BC6-7ECC-D9EA-9ABD-3DC826AA4881">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:23:08 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="notes" id="471E89EC-D0F0-82EF-EBA9-07F945CFBEDD">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:23:36 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="project_id1" id="39F30F09-2C95-D1ED-179D-7DB20FF435C4">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:26:01 UTC</createdTime>
+<generatorID>2C0EBFF2-D0CA-0F48-1995-E406E15D2818</generatorID>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<referedAttribute>700E5760-79F1-B71F-3FBE-1638B31B5171</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="material_id1" id="9384D705-BB8D-73D5-1FF2-98070E4BA6DC">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:27:10 UTC</createdTime>
+<generatorID>7615A508-5F71-46BA-5C4D-1F3CEC79A4C8</generatorID>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<referedAttribute>C79B32FB-7151-B19F-C2BA-F85F8585F979</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="user_id1" id="681FE22B-B3F8-1942-251E-0495900337A2">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:27:36 UTC</createdTime>
+<generatorID>E4465257-7690-73E4-0E07-90BEB41C1FA8</generatorID>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<referedAttribute>7AE36088-7F38-1687-AC60-738F32137A59</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="7F5561E4-E381-FC8B-8E3D-CC624CB07F46" name="consumption_logs PK">
+<createdBy>Galerie Informatique</createdBy>
+<createdTime>2026-10-26 19:20:21 UTC</createdTime>
+<ownerDesignName>Bunyan_conseption</ownerDesignName>
+<engineerTo>
+<item key="5E9EE85B-FE33-B3E0-B333-AD079D2E78FC" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>81E86AA3-B6F3-8FB2-5672-85DD6832EC8D</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>
