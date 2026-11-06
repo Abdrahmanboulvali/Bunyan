@@ -108,7 +108,7 @@ class ProjectLaborExpense(models.Model):
     days_worked = models.DecimalField(max_digits=5, decimal_places=1, default=0, verbose_name="عدد الأيام")
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="المبلغ المدفوع (أوقية)")
     notes = models.TextField(blank=True, null=True, verbose_name="ملاحظات")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ التسجيل")
+    created_at = models.DateTimeField(blank=True, null=True, verbose_name="تاريخ التسجيل")
 
     def __str__(self):
         return f"{self.worker.name} - {self.total_amount} أوقية"

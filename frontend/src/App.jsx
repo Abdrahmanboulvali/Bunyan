@@ -5,7 +5,7 @@ const API_BASE = 'http://127.0.0.1:8000/api/';
 
 function App() {
   const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null); // null تعني عرض الكل
+  const [selectedProject, setSelectedProject] = useState(null);
   const [materials, setMaterials] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [workers, setWorkers] = useState([]);
@@ -24,8 +24,15 @@ function App() {
   const [contractTotalAmount, setContractTotalAmount] = useState('');
   const [paidAmount, setPaidAmount] = useState('');
   const [laborNotes, setLaborNotes] = useState('');
+  const [laborDate, setLaborDate] = useState(getFormattedDateTime());
 
-  // حالات التصفية والتحكم في العرض
+  // مودال تعديل أجر / دفعة العامل
+  const [showEditLaborModal, setShowEditLaborModal] = useState(false);
+  const [editingLaborId, setEditingLaborId] = useState(null);
+  const [editLaborNotes, setEditLaborNotes] = useState('');
+  const [editLaborAmount, setEditLaborAmount] = useState('');
+  const [editLaborDate, setEditLaborDate] = useState('');
+
   const [projectSearch, setProjectSearch] = useState('');
   const [projectLimit, setProjectLimit] = useState(3);
 
@@ -38,7 +45,6 @@ function App() {
   const [workerSearch, setWorkerSearch] = useState('');
   const [workerLimit, setWorkerLimit] = useState(3);
 
-  // مودال العمال
   const [showAddWorkerModal, setShowAddWorkerModal] = useState(false);
   const [editingWorkerId, setEditingWorkerId] = useState(null);
   const [newWorkerProjectId, setNewWorkerProjectId] = useState('');
@@ -47,21 +53,18 @@ function App() {
   const [newWorkerWage, setNewWorkerWage] = useState('');
   const [newWorkerPhone, setNewWorkerPhone] = useState('');
 
-  // مودال الموردين
   const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
   const [editingSupplierId, setEditingSupplierId] = useState(null);
   const [newSupplierName, setNewSupplierName] = useState('');
   const [newSupplierPhone, setNewSupplierPhone] = useState('');
   const [newSupplierAddress, setNewSupplierAddress] = useState('');
 
-  // مودال المواد
   const [showAddMaterialModal, setShowAddMaterialModal] = useState(false);
   const [editingMaterialId, setEditingMaterialId] = useState(null);
   const [newMaterialName, setNewMaterialName] = useState('');
   const [newMaterialUnit, setNewMaterialUnit] = useState('');
   const [newMaterialPrice, setNewMaterialPrice] = useState('');
 
-  // مودال تعديل الطلب
   const [showEditRequestModal, setShowEditRequestModal] = useState(false);
   const [editingRequest, setEditingRequest] = useState(null);
   const [editMaterialId, setEditMaterialId] = useState('');
@@ -69,7 +72,6 @@ function App() {
   const [editQuantity, setEditQuantity] = useState('');
   const [editRequestDate, setEditRequestDate] = useState('');
 
-  // مودال المشاريع
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [newProjectName, setNewProjectName] = useState('');
@@ -296,17 +298,59 @@ function App() {
         worker: selectedWorkerId,
         days_worked: paymentType === 'DAILY' ? daysWorked : 0,
         total_amount: totalAmount,
-        notes: notesFormatted
+        notes: notesFormatted,
+        created_at: laborDate ? laborDate.replace('T', ' ') + ':00' : null
       });
       setSelectedWorkerId('');
       setDaysWorked('');
       setContractTotalAmount('');
       setPaidAmount('');
       setLaborNotes('');
+      setLaborDate(getFormattedDateTime());
       fetchLaborExpenses();
       alert('تم تسجيل الدفعة / الأجر بنجاح!');
     } catch (err) {
       alert('حدث خطأ أثناء التسجيل.');
+    }
+  };
+
+  const openEditLaborModal = (lab) => {
+    setEditingLaborId(lab.id);
+    setEditLaborNotes(lab.notes || '');
+    setEditLaborAmount(lab.total_amount);
+
+    let formattedDate = getFormattedDateTime();
+    if (lab.created_at) {
+      const cleanDate = lab.created_at.replace('Z', '').replace('T', ' ');
+      const parts = cleanDate.split(' ');
+      if (parts.length >= 2) {
+        formattedDate = `${parts[0]}T${parts[1].substring(0, 5)}`;
+      }
+    }
+    setEditLaborDate(formattedDate);
+    setShowEditLaborModal(true);
+  };
+
+  const handleUpdateLaborExpense = async (e) => {
+    e.preventDefault();
+    if (!editingLaborId) return;
+
+    try {
+      const formattedForBackend = editLaborDate ? editLaborDate.replace('T', ' ') + ':00' : null;
+
+      await axios.patch(`${API_BASE}labor-expenses/${editingLaborId}/`, {
+        total_amount: editLaborAmount,
+        notes: editLaborNotes,
+        created_at: formattedForBackend
+      });
+
+      setShowEditLaborModal(false);
+      setEditingLaborId(null);
+      await fetchLaborExpenses();
+      alert('تم تحديث سجل الدفعة بنجاح!');
+    } catch (err) {
+      console.error("Error updating labor expense", err);
+      alert('حدث خطأ أثناء تحديث سجل الدفعة.');
     }
   };
 
@@ -618,6 +662,37 @@ function App() {
 
   const filteredRequests = getFilteredRequests();
 
+  const getFilteredLaborExpenses = () => {
+    let targetLabor = laborExpenses;
+
+    if (selectedProject) {
+      targetLabor = laborExpenses.filter(lab => {
+        const labProjId = typeof lab.project === 'object' ? lab.project?.id : lab.project;
+        return Number(labProjId) === Number(selectedProject.id);
+      });
+    }
+
+    if (filterPeriod === 'all') return targetLabor;
+
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    return targetLabor.filter(lab => {
+      if (!lab.created_at) return false;
+      const labDatePart = lab.created_at.split('T')[0];
+      if (filterPeriod === 'today') return labDatePart === todayStr;
+      if (filterPeriod === 'yesterday') return labDatePart === yesterdayStr;
+      if (filterPeriod === 'customDate' && customDate) return labDatePart === customDate;
+      if (filterPeriod === 'customMonth' && customMonth) return labDatePart.startsWith(customMonth);
+      return true;
+    });
+  };
+
+  const filteredLaborExpenses = getFilteredLaborExpenses();
+
   const exportToExcel = () => {
     if (filteredRequests.length === 0) {
       alert('لا توجد بيانات للتصدير بناءً على الفلتر الحالي.');
@@ -628,10 +703,8 @@ function App() {
 
     filteredRequests.forEach(req => {
       const mat = materials.find(m => m.id === req.material);
-
       const supObj = suppliers.find(s => Number(s.id) === Number(req.supplier?.id || req.supplier || req.supplier_id));
       const supplierName = req.supplier_name || (supObj ? supObj.name : 'غير محدد');
-
       const projObj = projects.find(p => Number(p.id) === Number(req.project?.id || req.project));
       const projectName = projObj ? projObj.project_name : 'مشروع عام';
 
@@ -656,31 +729,6 @@ function App() {
   };
 
   const generatePDFInvoice = () => {
-    let targetLabor = laborExpenses;
-    if (selectedProject) {
-      targetLabor = laborExpenses.filter(lab => {
-        const labProjId = typeof lab.project === 'object' ? lab.project?.id : lab.project;
-        return Number(labProjId) === Number(selectedProject.id);
-      });
-    }
-
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    const yesterday = new Date();
-    yesterday.setDate(now.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    const filteredLaborExpenses = targetLabor.filter(lab => {
-      if (filterPeriod === 'all') return true;
-      if (!lab.created_at) return false;
-      const labDatePart = lab.created_at.split('T')[0];
-      if (filterPeriod === 'today') return labDatePart === todayStr;
-      if (filterPeriod === 'yesterday') return labDatePart === yesterdayStr;
-      if (filterPeriod === 'customDate' && customDate) return labDatePart === customDate;
-      if (filterPeriod === 'customMonth' && customMonth) return labDatePart.startsWith(customMonth);
-      return true;
-    });
-
     let rowsHTML = '';
     let materialsTotal = 0;
 
@@ -900,11 +948,6 @@ function App() {
   };
 
   const financials = calculateFinancials();
-  const currentProjectLabor = laborExpenses.filter(lab => {
-    if (!selectedProject) return true;
-    const labProjId = typeof lab.project === 'object' ? lab.project?.id : lab.project;
-    return Number(labProjId) === Number(selectedProject.id);
-  });
 
   return (
     <div style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif', direction: 'rtl', backgroundColor: '#f8fafc', minHeight: '100vh', color: '#1e293b' }}>
@@ -1466,60 +1509,22 @@ function App() {
                   style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', flex: 1.5, fontSize: '14px', backgroundColor: 'white' }}
                 />
 
+                <input
+                  type="datetime-local"
+                  value={laborDate}
+                  onChange={(e) => setLaborDate(e.target.value)}
+                  required
+                  style={{ padding: '9px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', backgroundColor: 'white' }}
+                />
+
                 <button type="submit" style={{ padding: '10px 18px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }}>
                   تسجيل الدفعة / الأجر
                 </button>
               </form>
             </div>
 
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ fontSize: '16px', color: '#334155', marginBottom: '12px' }}>📋 سجل أجور ودفعات العمال والحراس</h3>
-              {currentProjectLabor.length > 0 ? (
-                <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '14px' }}>
-                    <thead>
-                      <tr style={{ background: '#f5f3ff', color: '#5b21b6' }}>
-                        <th style={{ padding: '12px' }}>المشروع</th>
-                        <th style={{ padding: '12px' }}>العامل / الحارس</th>
-                        <th style={{ padding: '12px' }}>المهنة</th>
-                        <th style={{ padding: '12px' }}>المبلغ المدفوع</th>
-                        <th style={{ padding: '12px' }}>التفاصيل والملاحظات</th>
-                        <th style={{ padding: '12px', textAlign: 'center' }}>إدارة</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentProjectLabor.map(lab => {
-                        const worker = workers.find(w => w.id === Number(lab.worker));
-                        const projObj = projects.find(p => Number(p.id) === Number(lab.project?.id || lab.project));
-                        return (
-                          <tr key={lab.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '12px', fontWeight: '600', color: '#1e3a8a' }}>{projObj ? projObj.project_name : '-'}</td>
-                            <td style={{ padding: '12px', fontWeight: '600' }}>{worker ? worker.name : '-'}</td>
-                            <td style={{ padding: '12px', color: '#7c3aed' }}>{worker?.role === 'BUILDER' ? 'بناء' : 'حارس'}</td>
-                            <td style={{ padding: '12px', color: '#7c3aed', fontWeight: '700' }}>{parseFloat(lab.total_amount).toLocaleString()} أوقية</td>
-                            <td style={{ padding: '12px', color: '#64748b' }}>{lab.notes || '-'}</td>
-                            <td style={{ padding: '12px', textAlign: 'center' }}>
-                              <button
-                                onClick={() => handleDeleteLaborExpense(lab.id)}
-                                title="حذف السجل"
-                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px' }}
-                              >
-                                🗑️
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p style={{ color: '#64748b', fontSize: '14px', fontStyle: 'italic', marginBottom: '20px' }}>لا توجد أجور أو دفعات عمال مسجلة.</p>
-              )}
-            </div>
-
             <div style={{ background: '#eff6ff', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #bfdbfe', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontWeight: '600', fontSize: '14px', color: '#1e40af' }}>🔍 تصفية سجل طلبات المواد للتقرير:</span>
+              <span style={{ fontWeight: '600', fontSize: '14px', color: '#1e40af' }}>🔍 تصفية سجل الطلبات والأجور للتقرير:</span>
 
               <select
                 value={filterPeriod}
@@ -1553,6 +1558,63 @@ function App() {
             </div>
 
             <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ fontSize: '16px', color: '#5b21b6', marginBottom: '12px' }}>📋 سجل أجور ودفعات العمال والحراس (متوافق مع الفلتر)</h3>
+              {filteredLaborExpenses.length > 0 ? (
+                <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right', fontSize: '14px' }}>
+                    <thead>
+                      <tr style={{ background: '#f5f3ff', color: '#5b21b6' }}>
+                        <th style={{ padding: '12px' }}>المشروع</th>
+                        <th style={{ padding: '12px' }}>العامل / الحارس</th>
+                        <th style={{ padding: '12px' }}>المهنة</th>
+                        <th style={{ padding: '12px' }}>المبلغ المدفوع</th>
+                        <th style={{ padding: '12px' }}>التاريخ والوقت</th>
+                        <th style={{ padding: '12px' }}>التفاصيل والملاحظات</th>
+                        <th style={{ padding: '12px', textAlign: 'center' }}>إدارة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLaborExpenses.map(lab => {
+                        const worker = workers.find(w => w.id === Number(lab.worker));
+                        const projObj = projects.find(p => Number(p.id) === Number(lab.project?.id || lab.project));
+                        return (
+                          <tr key={lab.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '12px', fontWeight: '600', color: '#1e3a8a' }}>{projObj ? projObj.project_name : '-'}</td>
+                            <td style={{ padding: '12px', fontWeight: '600' }}>{worker ? worker.name : '-'}</td>
+                            <td style={{ padding: '12px', color: '#7c3aed' }}>{worker?.role === 'BUILDER' ? 'بناء' : 'حارس'}</td>
+                            <td style={{ padding: '12px', color: '#7c3aed', fontWeight: '700' }}>{parseFloat(lab.total_amount).toLocaleString()} أوقية</td>
+                            <td style={{ padding: '12px', fontSize: '13px', color: '#64748b' }}>{lab.created_at ? new Date(lab.created_at).toLocaleString() : 'غير متوفر'}</td>
+                            <td style={{ padding: '12px', color: '#64748b' }}>{lab.notes || '-'}</td>
+                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => openEditLaborModal(lab)}
+                                  title="تعديل السجل"
+                                  style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '16px', padding: 0 }}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteLaborExpense(lab.id)}
+                                  title="حذف السجل"
+                                  style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px', padding: 0 }}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ color: '#64748b', fontSize: '14px', fontStyle: 'italic', marginBottom: '20px' }}>لا توجد أجور أو دفعات عمال مسجلة مطابقة لفترة التصفية الحالية.</p>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '30px' }}>
               <h3 style={{ fontSize: '16px', color: '#334155', marginBottom: '12px' }}>📋 جدول المواد والطلبات بتواريخها ومورديها</h3>
               {filteredRequests.length > 0 ? (
                 <div style={{ overflowX: 'auto' }}>
@@ -1572,10 +1634,8 @@ function App() {
                     <tbody>
                       {filteredRequests.map(req => {
                         const mat = materials.find(m => m.id === req.material);
-
                         const supObj = suppliers.find(s => Number(s.id) === Number(req.supplier?.id || req.supplier || req.supplier_id));
                         const supplierName = req.supplier_name || (supObj ? supObj.name : 'غير محدد');
-
                         const projObj = projects.find(p => Number(p.id) === Number(req.project?.id || req.project));
 
                         const price = mat ? parseFloat(mat.unit_price) : 0;
@@ -1638,6 +1698,64 @@ function App() {
         </div>
 
       </div>
+
+      {showEditLaborModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', padding: '30px', borderRadius: '16px', width: '420px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ marginTop: 0, color: '#5b21b6', fontSize: '20px', marginBottom: '20px' }}>تعديل سجل أجر / دفعة العامل</h2>
+            <form onSubmit={handleUpdateLaborExpense}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>المبلغ المدفوع (أوقية):</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editLaborAmount}
+                  onChange={(e) => setEditLaborAmount(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontSize: '14px' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>التفاصيل والملاحظات:</label>
+                <input
+                  type="text"
+                  value={editLaborNotes}
+                  onChange={(e) => setEditLaborNotes(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontSize: '14px' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '25px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>التاريخ والوقت:</label>
+                <input
+                  type="datetime-local"
+                  value={editLaborDate}
+                  onChange={(e) => setEditLaborDate(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontSize: '14px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEditLaborModal(false)}
+                  style={{ padding: '10px 20px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: '10px 20px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+                >
+                  حفظ التعديلات
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showEditRequestModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
